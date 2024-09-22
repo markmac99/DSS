@@ -48,7 +48,15 @@ jobs:
         modules: 'qtcharts'
         setup-python: 'false'
 
-
+    - name: Install boost
+      uses: MarkusJx/install-boost@v2.4.5
+      id: install-boost
+      with:
+        boost_version: 1.80.0
+        boost_install_dir: C:\boost_180
+        platform_version: 2019
+        toolset: msvc
+      
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
