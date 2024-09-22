@@ -60,7 +60,8 @@ jobs:
     - name: Download Qt VS add-in
       run: |
         curl -L -o qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix https://download.qt.io/development_releases/vsaddin/3.2.0/qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix
-        start /wait msiexec /i qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix /quiet
+        start /wait qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix /quiet
+#        start /wait msiexec /i qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix /quiet
       shell: cmd
 
     - name: Build
