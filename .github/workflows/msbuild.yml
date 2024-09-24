@@ -57,11 +57,11 @@ jobs:
         platform_version: 2019
         toolset: msvc
       
-#    - name: Download Qt VS add-in
-#      run: |
-#        curl -L -o qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix https://download.qt.io/development_releases/vsaddin/3.2.0/qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix
-#        start /wait qt-vsaddin-msvc2022-x64-3.2.0-rev.47.vsix
-#      shell: cmd
+    - name: Download Qt VS add-in
+      run: |
+        curl -L -o qtmsbuild.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/QtMsBuild.zip
+        unzip qtmsbuild.zip
+      shell: powershell
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
