@@ -40,8 +40,8 @@ jobs:
     - name: Install Visual Leak Detector
       run: |
         curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
-        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp- /dir:"c:\program files (x86)\visual leak detector"
-        dir "C:\Program Files (x86)"
+        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp- /log:vld.log
+        dir vld.log
       shell: powershell
       
     - name: Install Qt
