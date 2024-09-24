@@ -61,12 +61,13 @@ jobs:
       run: |
         curl -o qtmsbuild.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/QtMsBuild.zip
         expand-archive qtmsbuild.zip -destinationpath d:\qtmsbuild
-        dir d:\qtmsbuild
-        $env:QtMsBuild="c:\qtmsbuild\qtmsbuild"
       shell: powershell
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+      run: |
+        $env:QtMsBuild="d:\qtmsbuild\QtMsBuild"
+        dir $env:qtmsbuild
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
