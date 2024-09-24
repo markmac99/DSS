@@ -42,7 +42,6 @@ jobs:
         curl -o vld.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/vld.zip
         expand-archive vld.zip -destinationpath d:\buildpkgs\vld\
         dir d:\buildpkgs\vld\
-        dir "c:\program files (x86)\foobar"
       shell: powershell
       
 #        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
@@ -83,6 +82,8 @@ jobs:
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
         echo $env:DefaultQtVersion
         dir "${env:BOOST_1_80_0}\boost\config"
+        $env:IncludePath="d:\buildpkgs\vld"
+        $env:ILink_LibraryPath="d:\buildpkgs\vld"
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
       shell: powershell
       env:
