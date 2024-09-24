@@ -65,8 +65,8 @@ jobs:
 
     - name: Install Visual Leak Detector
       run: |
-        curl -o vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
-        vld-2.5.9-setup.exe /verysilent /norestart
+        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
+        &./vld-2.5.9-setup.exe /verysilent /norestart
       shell: powershell
 
     - name: Build
