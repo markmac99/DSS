@@ -63,6 +63,12 @@ jobs:
         expand-archive qtmsbuild.zip -destinationpath d:\buildpkgs\
       shell: powershell
 
+    - name: Install Visual Leak Detector
+      run: |
+        curl -o vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
+        vld-2.5.9-setup.exe /verysilent /norestart
+      shell: powershell
+
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
