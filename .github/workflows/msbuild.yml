@@ -62,6 +62,7 @@ jobs:
         curl -o qtmsbuild.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/QtMsBuild.zip
         expand-archive qtmsbuild.zip -destinationpath d:\qtmsbuild
         dir d:\qtmsbuild
+        $env:QtMsBuild="c:\qtmsbuild\qtmsbuild"
       shell: powershell
 
     - name: Build
