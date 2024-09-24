@@ -37,6 +37,13 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
+    - name: Install Visual Leak Detector
+      run: |
+        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
+        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp- /log
+        dir "C:\Program Files (x86)"
+      shell: powershell
+      
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -48,13 +55,6 @@ jobs:
         modules: 'qtcharts'
         setup-python: 'false'
 
-    - name: Install Visual Leak Detector
-      run: |
-        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
-        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp-
-        dir "C:\Program Files (x86)\Visual Leak Detector\"
-      shell: powershell
-  
     - name: Install boost
       uses: MarkusJx/install-boost@v2.4.5
       id: install-boost
