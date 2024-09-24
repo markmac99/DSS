@@ -67,7 +67,6 @@ jobs:
       run: |
         curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
         ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp-
-        dir 'C:\Program Files (x86)\Visual Leak Detector\include\'
       shell: powershell
 
     - name: Build
