@@ -39,11 +39,16 @@ jobs:
 
     - name: Install Visual Leak Detector
       run: |
-        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
-        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp- /log:vld.log
-        dir vld.log
+        curl -o vld.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/vld.zip
+        expand-archive vld.zip -destinationpath d:\buildpkgs\vld\
+        dir d:\buildpkgs\vld\
+        dir "c:\program files (x86)\foobar"
       shell: powershell
       
+#        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
+#        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp- /log:vld.log
+#        dir vld.log
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
