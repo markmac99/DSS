@@ -42,13 +42,9 @@ jobs:
         curl -o vld.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/vld.zip
         mkdir "c:\program files (x86)\Visual Leak Detector"
         expand-archive vld.zip -destinationpath "c:\program files (x86)\Visual Leak Detector"
-        dir "c:\program files (x86)\Visual Leak Detector"
+        # dir "c:\program files (x86)\Visual Leak Detector"
       shell: powershell
       
-#        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
-#        ./vld-2.5.9-setup.exe /suppressmsgboxes /norestart /silent /sp- /log:vld.log
-#        dir vld.log
-
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -66,7 +62,7 @@ jobs:
       with:
         boost_version: 1.80.0
         boost_install_dir: c:\boost_180
-        platform_version: 2019
+        platform_version: 2022
         toolset: msvc
       
     - name: Install QT VS Plugin Support for MSBuild
@@ -81,10 +77,9 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
-        echo $env:DefaultQtVersion
-        dir "${env:BOOST_1_80_0}\boost\config"
-        $env:IncludePath="d:\buildpkgs\vld\include"
-        $env:ILink_LibraryPath="d:\buildpkgs\vld\lib\Win64"
+        echo ${{env.DefaultQtVersion}}
+        echo "${{env.BOOST_1_80_0}}
+        dir "${{env.BOOST_1_80_0}}\boost\config\"
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
       shell: powershell
       env:
