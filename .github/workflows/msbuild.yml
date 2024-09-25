@@ -61,7 +61,8 @@ jobs:
       id: install-boost
       with:
         boost_version: 1.80.0
-        boost_install_dir: c:\boost_180
+        #boost_install_dir: c:\boost_180
+        link: shared
         platform_version: 2022
         toolset: msvc
       
