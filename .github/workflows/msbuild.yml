@@ -40,8 +40,9 @@ jobs:
     - name: Install Visual Leak Detector
       run: |
         curl -o vld.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/vld.zip
-        expand-archive vld.zip -destinationpath d:\buildpkgs\vld\
-        dir d:\buildpkgs\vld\
+        mkdir "c:\program files (x86)\Visual Leak Detector"
+        expand-archive vld.zip -destinationpath "c:\program files (x86)\Visual Leak Detector"
+        dir "c:\program files (x86)\Visual Leak Detector"
       shell: powershell
       
 #        curl -o ./vld-2.5.9-setup.exe https://github.com/Azure/vld/releases/download/v2.5.9/vld-2.5.9-setup.exe
