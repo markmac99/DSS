@@ -61,7 +61,7 @@ jobs:
       id: install-boost
       with:
         boost_version: 1.80.0
-        #boost_install_dir: c:\boost_180
+        boost_install_dir: c:\boost_180
         link: shared
         platform_version: 2022
         toolset: msvc
@@ -78,10 +78,6 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
-        echo ${{env.DefaultQtVersion}}
-        echo ${{env.BOOST_1_80_0}}
-        dir ${{env.BOOST_1_80_0}}\boost\config\user.hpp
-        $env:CL="/I${{env.BOOST_1_80_0}}\.."
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
       shell: powershell
       env:
