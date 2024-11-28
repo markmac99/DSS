@@ -135,8 +135,8 @@ bool CChannelAlign::AlignChannels(std::shared_ptr<CMemoryBitmap> pBitmap, Progre
 		CMemoryBitmap* pSecondBitmap;
 		CMemoryBitmap* pThirdBitmap;
 
-		const double fMaxScore = std::max(lfiRed.meanQuality, std::max(lfiGreen.meanQuality, lfiBlue.meanQuality));
-		if (fMaxScore == lfiRed.meanQuality)
+		const double fMaxScore = std::max(lfiRed.quality, std::max(lfiGreen.quality, lfiBlue.quality));
+		if (fMaxScore == lfiRed.quality)
 		{
 			pReference	= &lfiRed;
 			pSecond		= &lfiGreen;
@@ -145,7 +145,7 @@ bool CChannelAlign::AlignChannels(std::shared_ptr<CMemoryBitmap> pBitmap, Progre
 			pSecondBitmap	 = pGreen;
 			pThirdBitmap	 = pBlue;
 		}
-		else if (fMaxScore == lfiGreen.meanQuality)
+		else if (fMaxScore == lfiGreen.quality)
 		{
 			pReference	= &lfiGreen;
 			pSecond		= &lfiRed;
@@ -168,7 +168,7 @@ bool CChannelAlign::AlignChannels(std::shared_ptr<CMemoryBitmap> pBitmap, Progre
 		CMatchingStars MatchingStars{ pBitmap->Width(), pBitmap->Height() };
 		constexpr int MaxNumberOfConsideredStars = 100;
 
-		const auto addRefOrTargetStar = [&MatchingStars]<bool Refstar>(std::span<CStar> stars)
+		const auto addRefOrTargetStar = [&MatchingStars, MaxNumberOfConsideredStars]<bool Refstar>(std::span<CStar> stars)
 		{
 			std::ranges::sort(stars, CompareStarLuminancy);
 			for (const auto& star : std::views::take(stars, MaxNumberOfConsideredStars)) // Is safe, even if 'stars' has less than 100 elements.

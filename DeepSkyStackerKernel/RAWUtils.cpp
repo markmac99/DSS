@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "RAWUtils.h"
+#define LIBRAW_NO_WINSOCK2
 #include "libraw/libraw.h"
 #include "Ztrace.h"
 #include "Workspace.h"
@@ -161,11 +162,9 @@ void PopRAWSettings()
 
 #include "BitMapFiller.h"
 
-#define Thread   __declspec( thread )
-
 namespace { // Only use in this .cpp file
 
-	static Thread ProgressBase* g_Progress;
+	static thread_local ProgressBase* g_Progress;
 
 	class DSSLibRaw : public LibRaw
 	{
@@ -303,7 +302,7 @@ namespace { // Only use in this .cpp file
 			return (m_strMake + " " + m_strModel);
 		};
 
-		void checkCameraSupport(const QString& strModel);
+//		void checkCameraSupport(const QString& strModel);
 
 		int	GetISOSpeed() noexcept
 		{
@@ -378,6 +377,7 @@ namespace { // Only use in this .cpp file
 		};
 	};
 
+#if (0)
 	void CRawDecod::checkCameraSupport(const QString& strModel)
 	{
 		std::string cameraString{ strModel.toLatin1().constData() }; // Not const! We want to move it at the end.
@@ -436,6 +436,7 @@ namespace { // Only use in this .cpp file
 			DSSBase::instance()->reportError(errorMessage, "");
 		}
 	}
+#endif
 
 
 	bool CRawDecod::LoadRawFile(CMemoryBitmap* pBitmap, const bool ignoreBrightness, ProgressBase* pProgress)
@@ -453,6 +454,7 @@ namespace { // Only use in this .cpp file
 
 		QString strDescription{ getModel() };
 
+#if (0)
 		//
 		// If it's a DNG file, we don't need to check for camera support, but if
 		// we're processing a true raw file then check that the camera is supported.
@@ -461,6 +463,7 @@ namespace { // Only use in this .cpp file
 		{
 			checkCameraSupport(strDescription);
 		};
+#endif
 
 		pBitmap->SetDescription(strDescription);
 
@@ -542,7 +545,7 @@ namespace { // Only use in this .cpp file
 			//
 			// Get our endian-ness so we can swap bytes if needed (always on Windows).
 			//
-			const bool littleEndian = htons(0x55aa) != 0x55aa; // big_endian = htons(host_byte_order)
+			const bool littleEndian = (htons(0x55aa) != 0x55aa); // big_endian = htons(host_byte_order)
 
 			if (!m_bColorRAW)
 			{

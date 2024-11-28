@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <immintrin.h>
 #include "avx_support.h"
 #include "dssrect.h"
 #include "avx.h"
@@ -8,6 +9,7 @@
 #include "BackgroundCalibration.h"
 #include "avx_entropy.h"
 #include "EntropyInfo.h"
+
 
 AvxStacking::AvxStacking(const int lStart, const int lEnd, const CMemoryBitmap& inputbm, CMemoryBitmap& tempbm, const DSSRect& resultRect, AvxEntropy& entrdat) :
 	lineStart{ lStart }, lineEnd{ lEnd }, colEnd{ inputbm.Width() },
@@ -23,7 +25,7 @@ AvxStacking::AvxStacking(const int lStart, const int lEnd, const CMemoryBitmap& 
 	tempBitmap{ tempbm },
 	avxCfa{ static_cast<size_t>(lStart), static_cast<size_t>(lEnd), inputbm },
 	entropyData{ entrdat },
-	avx2Enabled{ AvxSupport::checkSimdAvailability() }
+	avx2Enabled{ AvxSimdCheck::checkSimdAvailability() }
 {
 	if (width < 0 || height < 0)
 		throw std::invalid_argument("End index smaller than start index for line or column of AvxStacking");
@@ -517,9 +519,9 @@ int Avx256Stacking::backgroundCalibration(const CBackgroundCalibration& backgrou
 					for (int n = nrVectors * 16; n < stackData.colEnd; ++n, ++pColor, ++pResult)
 					{
 						const float fcolor = readColorValue(*pColor);
-						const float denom = b.m256_f32[0] * fcolor + c.m256_f32[0];
-						const float xplusa = fcolor + a.m256_f32[0];
-						*pResult = std::max(std::min(denom == 0.0f ? xplusa : (xplusa / denom), fmax.m256_f32[0]), fmin.m256_f32[0]);
+						const float denom = accessSimdElement(b, 0) * fcolor + accessSimdElement(c, 0);
+						const float xplusa = fcolor + accessSimdElement(a, 0);
+						*pResult = std::max(std::min(denom == 0.0f ? xplusa : (xplusa / denom), accessSimdElement(fmax, 0)), accessSimdElement(fmin, 0));
 					}
 				}
 			};
@@ -559,7 +561,9 @@ int Avx256Stacking::backgroundCalibration(const CBackgroundCalibration& backgrou
 					for (int n = nrVectors * 16; n < stackData.colEnd; ++n, ++pColor, ++pResult)
 					{
 						const float fcolor = readColorValue(*pColor);
-						*pResult = fcolor < xm.m256_f32[0] ? (fcolor * a0.m256_f32[0] + b0.m256_f32[0]) : (fcolor * a1.m256_f32[0] + b1.m256_f32[0]);
+						*pResult = fcolor < accessSimdElement(xm, 0)
+							? (fcolor * accessSimdElement(a0, 0) + accessSimdElement(b0, 0))
+							: (fcolor * accessSimdElement(a1, 0) + accessSimdElement(b1, 0));
 					}
 				}
 			};
@@ -568,9 +572,11 @@ int Avx256Stacking::backgroundCalibration(const CBackgroundCalibration& backgrou
 	}
 }
 
-#pragma warning( push )
-#pragma warning( disable : 4324 ) // Structure was padded
-#pragma warning( disable : 4100 ) // Unreferenced variable
+#if defined (_MSC_VER)
+#pragma warning (push)
+#pragma warning (disable: 4100) // Unreferenced variable
+#pragma warning (disable: 4127) // Constant expression
+#endif
 
 template <bool ISRGB, bool ENTROPY, class T>
 int Avx256Stacking::pixelPartitioning()
@@ -653,10 +659,13 @@ int Avx256Stacking::pixelPartitioning()
 	if constexpr (ENTROPY)
 	{
 		AvxSupport avxEntropySupport{ *stackData.entropyData.pEntropyCoverage };
+
 		if (ISRGB && !avxEntropySupport.isColorBitmapOfType<float>())
 			return 1;
+
 		if (!ISRGB && !avxEntropySupport.isMonochromeBitmapOfType<float>())
 			return 1;
+
 		if (stackData.entropyData.redEntropyLayer.empty()) // Something is wrong here!
 			return 1;
 		pRedEntropyLayer = reinterpret_cast<float*>(stackData.entropyData.redEntropyLayer.data());
@@ -858,7 +867,9 @@ int Avx256Stacking::pixelPartitioning()
 	return 0;
 }
 
-#pragma warning( pop )
+#if defined (_MSC_VER)
+#pragma warning (pop)
+#endif
 
 template <bool ISRGB>
 inline void Avx256Stacking::getAvxEntropy(__m256& redEntropy, __m256& greenEntropy, __m256& blueEntropy, const __m256i xIndex, const int row)

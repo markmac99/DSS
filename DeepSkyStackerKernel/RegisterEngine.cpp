@@ -34,7 +34,7 @@ void CRegisteredFrame::Reset()
 
 	m_fOverallQuality = 0;
 	m_fFWHM = 0;
-	meanQuality = 0;
+	quality = 0;
 }
 
 //
@@ -44,10 +44,10 @@ void CRegisteredFrame::Reset()
 // (2) A new average quality indicator, which is independent of the number of detected stars (unlike the above).
 //     This is important, because the new auto-threshold algorithm cannot guarantee an identical detection threshold over the series of light-frames.
 //     Using the new quality indicator, even then the light-frames can be compared.
-// The new quality indicator double CLightframInfo::meanQuality; (shown as "MeanQuality" in the GUI) much better characterises the realy quality of 
+// The new quality indicator double CLightframInfo::quality; (shown as "Quality" in the GUI) much better characterises the realy quality of 
 // a light-frame than the old Score.
 // 
-// The new MeanQuality parameter is calculated as follows:
+// The new Quality parameter is calculated as follows:
 // We take the vector of detected stars and filter out those, that are inactive (e.g. removed by the edit stars functionality in the GUI).
 // We sort the active stars by the new parameter double CStar::m_fCircularity; From the active stars, we take maximum 100.
 // Over these stars, we calculate a weighted average of the circularity parameter.
@@ -58,11 +58,11 @@ void CRegisteredFrame::Reset()
 //   (fIntensity - backgroundLevel) / (0.1 + maxDeltaRadii); where maxDeltaRadii is the maximum difference of the radii (in pixels) in the 8 directions around the star center.
 //   So if maxDeltaRadii == 0, the star will be additionally weighted by 10. If maxDeltaRadii == 1, the star will be devaluated by 1/1.1 (0.91). And so on ...
 //   So the best stars will be those, that are bright and perfectly circular.
-// From all light-frames, the best (in terms of the new MeanQuality parameter) will be those with bright and perfectly circular stars. The absolut number 
+// From all light-frames, the best (in terms of the new Quality parameter) will be those with bright and perfectly circular stars. The absolut number 
 // of stars is NOT important.
 // So it is really a quality measure for the circularity of the stars in the light-frame.
 // 
-// In the GUI is a new column "MeanQuality" right next to the good old "Score". Users can use it to sort the light-frames.
+// In the GUI is a new column "Quality" right next to the good old "Score". Users can use it to sort the light-frames.
 // 
 // CRegisteredFrame::ComputeOverallQuality is now public static, so it can be used from other parts of the code, too, e.g. in EditStars::computeOverallQuality().
 //
@@ -96,9 +96,9 @@ std::pair<double, double> CRegisteredFrame::ComputeOverallQuality(const STARVECT
 		++ndx;
 	}
 
-	const double meanQuality = sumWeights != 0 ? sum / sumWeights : 0.0;
+	const double quality = sumWeights != 0 ? sum / sumWeights : 0.0;
 
-	return std::make_pair(overallQuality, meanQuality);
+	return std::make_pair(overallQuality, quality);
 }
 
 namespace {
@@ -128,7 +128,7 @@ namespace {
 
 	constexpr char ThresholdParam[] = "ThresholdPercent";
 	constexpr char CircularityParam[] = "Circularity";
-	constexpr char MeanQualityParam[] = "MeanQuality";
+	constexpr char QualityParam[] = "Quality";
 
 	const QString paramString(std::string_view param, std::string_view part2)
 	{
@@ -138,48 +138,50 @@ namespace {
 
 bool CRegisteredFrame::SaveRegisteringInfo(const fs::path& szInfoFileName)
 {
-	bool bResult = false;
 	QFile data(szInfoFileName);
-	if (!data.open(QFile::WriteOnly | QFile::Truncate))
+	if (!data.open(QFile::WriteOnly | QFile::Truncate | QIODeviceBase::Text))
 		return false;
+	QByteArray buffer;
 
-	QTextStream fileOut(&data);	
+	QTextStream fileOut(&buffer);	
+
+	fileOut << QString("OverallQuality = %1").arg(m_fOverallQuality, 0, 'f', 2) << Qt::endl;
+	fileOut << paramString(QualityParam, " = %1").arg(this->quality, 0, 'f', 2) << Qt::endl;
+	fileOut << "RedXShift = 0.0" << Qt::endl;
+	fileOut << "RedYShift = 0.0" << Qt::endl;
+	fileOut << "BlueXShift = 0.0" << Qt::endl;
+	fileOut << "BlueYShift = 0.0" << Qt::endl;
+	if (m_bComet)
+		fileOut << QString("Comet = %1, %2").arg(m_fXComet, 0, 'f', 2).arg(m_fYComet, 0, 'f', 2) << Qt::endl;
+	fileOut << QString("SkyBackground = %1").arg(m_SkyBackground.m_fLight, 0, 'f', 4) << Qt::endl;
+	fileOut << paramString(ThresholdParam, " = %1").arg(100.0 * this->usedDetectionThreshold, 0, 'f', 3) << Qt::endl;
+	fileOut << "NrStars = " << m_vStars.size() << Qt::endl;
+
+	for (int i = 0; const CStar& star : this->m_vStars)
 	{
-		fileOut << QString("OverallQuality = %1").arg(m_fOverallQuality, 0, 'f', 2) << Qt::endl;
-		fileOut << paramString(MeanQualityParam, " = %1").arg(this->meanQuality, 0, 'f', 2) << Qt::endl;
-		fileOut << "RedXShift = 0.0" << Qt::endl;
-		fileOut << "RedYShift = 0.0" << Qt::endl;
-		fileOut << "BlueXShift = 0.0" << Qt::endl;
-		fileOut << "BlueYShift = 0.0" << Qt::endl;
-		if (m_bComet)
-			fileOut << QString("Comet = %1, %2").arg(m_fXComet, 0, 'f', 2).arg(m_fYComet, 0, 'f', 2) << Qt::endl;
-		fileOut << QString("SkyBackground = %1").arg(m_SkyBackground.m_fLight, 0, 'f', 4) << Qt::endl;
-		fileOut << paramString(ThresholdParam, " = %1").arg(100.0 * this->usedDetectionThreshold, 0, 'f', 3) << Qt::endl;
-		fileOut << "NrStars = " << m_vStars.size() << Qt::endl;
-
-		for (int i = 0; const CStar& star : this->m_vStars)
-		{
-			fileOut << "Star# = " << i << Qt::endl;
-			fileOut << QString("Intensity = %1").arg(star.m_fIntensity, 0, 'f', 2) << Qt::endl;
-			fileOut << QString("Quality = %1").arg(star.m_fQuality, 0, 'f', 2) << Qt::endl;
-			fileOut << QString("MeanRadius = %1").arg(star.m_fMeanRadius, 0, 'f', 2) << Qt::endl;
-			fileOut << paramString(CircularityParam, " = %1").arg(star.m_fCircularity, 0, 'f', 2) << Qt::endl;
-			fileOut << "Rect = " << star.m_rcStar.left << ", "
-				<< star.m_rcStar.top << ", "
-				<< star.m_rcStar.right << ", "
-				<< star.m_rcStar.bottom << Qt::endl;
-			fileOut << QString("Center = %1, %2").arg(star.m_fX, 0, 'f', 2).arg(star.m_fY, 0, 'f', 2) << Qt::endl;
-			fileOut << QString("Axises = %1, %2, %3, %4, %5")
-				.arg(star.m_fMajorAxisAngle, 0, 'f', 2)
-				.arg(star.m_fLargeMajorAxis, 0, 'f', 2)
-				.arg(star.m_fSmallMajorAxis, 0, 'f', 2)
-				.arg(star.m_fLargeMinorAxis, 0, 'f', 2)
-				.arg(star.m_fSmallMinorAxis, 0, 'f', 2) << Qt::endl;
-			++i;
-		}
-		bResult = true;
+		fileOut << "Star# = " << i << Qt::endl;
+		fileOut << QString("Intensity = %1").arg(star.m_fIntensity, 0, 'f', 2) << Qt::endl;
+		fileOut << QString("Quality = %1").arg(star.m_fQuality, 0, 'f', 2) << Qt::endl;
+		fileOut << QString("MeanRadius = %1").arg(star.m_fMeanRadius, 0, 'f', 2) << Qt::endl;
+		fileOut << paramString(CircularityParam, " = %1").arg(star.m_fCircularity, 0, 'f', 2) << Qt::endl;
+		fileOut << "Rect = " << star.m_rcStar.left << ", "
+			<< star.m_rcStar.top << ", "
+			<< star.m_rcStar.right << ", "
+			<< star.m_rcStar.bottom << Qt::endl;
+		fileOut << QString("Center = %1, %2").arg(star.m_fX, 0, 'f', 2).arg(star.m_fY, 0, 'f', 2) << Qt::endl;
+		fileOut << QString("Axises = %1, %2, %3, %4, %5")
+			.arg(star.m_fMajorAxisAngle, 0, 'f', 2)
+			.arg(star.m_fLargeMajorAxis, 0, 'f', 2)
+			.arg(star.m_fSmallMajorAxis, 0, 'f', 2)
+			.arg(star.m_fLargeMinorAxis, 0, 'f', 2)
+			.arg(star.m_fSmallMinorAxis, 0, 'f', 2) << Qt::endl;
+		++i;
 	}
-	return bResult;
+
+	auto bytesWritten = data.write(buffer);
+	ZASSERTSTATE(bytesWritten == buffer.size());
+
+	return true;
 }
 
 /* ------------------------------------------------------------------- */
@@ -196,7 +198,7 @@ bool CRegisteredFrame::LoadRegisteringInfo(const fs::path& szInfoFileName)
 	};
 
 	QFile data(szInfoFileName);
-	if (!data.open(QFile::ReadOnly))
+	if (!data.open(QFile::ReadOnly | QIODeviceBase::Text))
 		return unsuccessfulReturn();
 	QTextStream fileIn(&data);
 
@@ -215,8 +217,8 @@ bool CRegisteredFrame::LoadRegisteringInfo(const fs::path& szInfoFileName)
 
 		if (0 == strVariable.compare("OverallQuality", Qt::CaseInsensitive))
 			m_fOverallQuality = strValue.toDouble();
-		if (0 == strVariable.compare(MeanQualityParam, Qt::CaseInsensitive))
-			this->meanQuality = strValue.toDouble();
+		if (0 == strVariable.compare(QualityParam, Qt::CaseInsensitive))
+			this->quality = strValue.toDouble();
 
 		if (0 == strVariable.compare("Comet", Qt::CaseInsensitive))
 		{
@@ -566,7 +568,7 @@ double CLightFrameInfo::RegisterPicture(const CGrayBitmap& Bitmap, double thresh
 	} while (!stop(threshold, stars1.size())); // loop over thresholds
 
 	m_vStars.assign(stars1.cbegin(), stars1.cend());
-	std::tie(this->m_fOverallQuality, this->meanQuality) = ComputeOverallQuality(m_vStars);
+	std::tie(this->m_fOverallQuality, this->quality) = ComputeOverallQuality(m_vStars);
 	ComputeFWHM();
 	// We return the threshold of the last iteration. This can be used by the caller as starting value for the next light-frame.
 	return usedThreshold;
@@ -719,8 +721,8 @@ void CLightFrameInfo::RegisterPicture(CMemoryBitmap* pBitmap, const int bitmapIn
 		this->usedDetectionThreshold = usedThres;
 		// IF auto-threshold: Take the threshold of the first lightframe (bitmapIndex == 0) as starting value for the following lightframes.
 		previousThreshold = bitmapIndex == 0 ? usedThres : previousThreshold;
-		ZTRACE_RUNTIME("Finished registering file # %d. Final threshold = %f; Found %zu stars; Score=%f; MeanQuality=%f",
-			bitmapIndex, usedThres, m_vStars.size(), this->m_fOverallQuality, this->meanQuality);
+		ZTRACE_RUNTIME("Finished registering file # %d. Final threshold = %f; Found %zu stars; Score=%f; Quality=%f",
+			bitmapIndex, usedThres, m_vStars.size(), this->m_fOverallQuality, this->quality);
 	}
 }
 
@@ -876,33 +878,25 @@ void CLightFrameInfo::RegisterPicture(const fs::path& bitmap, double fMinLuminan
 
 bool CLightFrameInfo::ReadInfoFileName()
 {
-	return LoadRegisteringInfo(m_strInfoFileName);
+	return LoadRegisteringInfo(infoFile);
 };
 
 /* ------------------------------------------------------------------- */
 
 void CLightFrameInfo::SaveRegisteringInfo()
 {
-	m_bInfoOk = CRegisteredFrame::SaveRegisteringInfo(m_strInfoFileName);
+	m_bInfoOk = CRegisteredFrame::SaveRegisteringInfo(infoFile);
 };
 
 /* ------------------------------------------------------------------- */
 
 void CLightFrameInfo::SetBitmap(fs::path path/*, bool bProcessIfNecessary, bool bForceRegister*/)
 {
-	TCHAR				szDrive[1+_MAX_DRIVE];
-	TCHAR				szDir[1+_MAX_DIR];
-	TCHAR				szFile[1+_MAX_FNAME];
-	TCHAR				szExt[1+_MAX_EXT];
-	TCHAR				szInfoName[1+_MAX_PATH];
-
 	Reset();
 	m_bInfoOk = false;
 	filePath = path;
-	_tsplitpath(filePath.c_str(), szDrive, szDir, szFile, szExt);
-	_tmakepath(szInfoName, szDrive, szDir, szFile, _T(".info.txt"));
 
-	m_strInfoFileName = szInfoName;
+	infoFile = path.replace_extension("info.txt");
 
 	ReadInfoFileName();
 	//if (bForceRegister || (!ReadInfoFileName() && bProcessIfNecessary))

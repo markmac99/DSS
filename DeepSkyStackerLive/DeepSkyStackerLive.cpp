@@ -52,11 +52,13 @@
 //
 // Necessary Windows header
 //
-#if defined(Q_OS_WIN)
-#include <afx.h>
+#if defined(Q_OS_WIN) && !defined(NDEBUG)
+//
+// Visual Leak Detector
+#include <vld.h>
 #endif
 
-#include "avx_support.h"
+#include "avx_simd_check.h"
 #include "DeepSkyStackerLive.h"
 #include "DSSVersion.h"
 #include "ExceptionHandling.h"
@@ -64,7 +66,6 @@
 #include "LiveSettings.h"
 #include <zexcept.h>
 #include <ztrace.h>
-#include "./../DeepSkyStacker/SetUILanguage.h"	// Explicit include so not to pull over all headers in DSS if we added just a new include path.
 #include "tracecontrol.h"
 #include "Workspace.h"
 #include "foldermonitor.h"
@@ -84,8 +85,6 @@ using namespace std;
 DSS::TraceControl traceControl{ source_location::current().file_name() };
 
 bool	g_bShowRefStars = false;
-
-void reportCpuType();
 
 namespace
 {
@@ -584,7 +583,7 @@ void DeepSkyStackerLive::onInitialise()
 		<< tr("Exposure", "IDS_COLUMN_EXPOSURE")
 		<< tr("Aperture", "IDS_COLUMN_APERTURE")
 		<< tr("Score", "IDS_COLUMN_SCORE")
-		<< tr("MeanQualiy", "IDS_COLUMN_MEANQUALITY")
+		<< tr("Quality", "IDS_COLUMN_MEANQUALITY")
 		<< tr("#Stars", "IDS_COLUMN_STARS")
 		<< tr("FWHM")
 		<< tr("dX", "IDS_COLUMN_DX")
@@ -606,7 +605,7 @@ void DeepSkyStackerLive::onInitialise()
 		case ImageListColumns::Exposure:
 		case ImageListColumns::Aperture:
 		case ImageListColumns::Score:
-		case ImageListColumns::MeanQuality:
+		case ImageListColumns::Quality:
 		case ImageListColumns::Stars:
 		case ImageListColumns::FWHM:
 		case ImageListColumns::dX:
@@ -932,7 +931,7 @@ bool DeepSkyStackerLive::canWriteToMonitoredFolder()
 	{
 		auto  file = dir /= "DSSLive.test.txt";
 		if (std::FILE* hFile =
-#if defined _WINDOWS
+#if defined(Q_OS_WIN)
 			_wfopen(file.generic_wstring().c_str(), L"wt")
 #else
 			std::fopen(file.generic_u8string().c_str(), "wt")
@@ -1139,7 +1138,7 @@ void DeepSkyStackerLive::addImageToList(fs::path path)
 		case ImageListColumns::Exposure:
 		case ImageListColumns::Aperture:
 		case ImageListColumns::Score:
-		case ImageListColumns::MeanQuality:
+		case ImageListColumns::Quality:
 		case ImageListColumns::Stars:
 		case ImageListColumns::FWHM:
 		case ImageListColumns::dX:
@@ -1316,7 +1315,7 @@ void DeepSkyStackerLive::fileRegistered(std::shared_ptr<CLightFrameInfo> lfi)
 			imageList->item(row, static_cast<int>(ImageListColumns::Exposure))->setText(exposureToString(lfi->m_fExposure));
 			imageList->item(row, static_cast<int>(ImageListColumns::Aperture))->setText(locale.toString(lfi->m_fAperture, 'f', 1));
 			imageList->item(row, static_cast<int>(ImageListColumns::Score))->setText(locale.toString(lfi->m_fOverallQuality, 'f', 2));
-			imageList->item(row, static_cast<int>(ImageListColumns::MeanQuality))->setText(locale.toString(lfi->meanQuality, 'f', 2));
+			imageList->item(row, static_cast<int>(ImageListColumns::Quality))->setText(locale.toString(lfi->quality, 'f', 2));
 			imageList->item(row, static_cast<int>(ImageListColumns::Stars))->setText(locale.toString(lfi->m_vStars.size()));
 			imageList->item(row, static_cast<int>(ImageListColumns::FWHM))->setText(locale.toString(lfi->m_fFWHM, 'f', 2));
 			//
@@ -1420,7 +1419,7 @@ void DSSLive::handleWarning(QString warning)
 				{
 					path /= "DSSLiveWarning.txt";
 					QFile file(path);
-					if (file.open(QFile::WriteOnly | QFile::Append))
+					if (file.open(QFile::WriteOnly | QFile::Append | QIODeviceBase::Text))
 					{
 						QTextStream stream{ &file };
 						stream << warning << Qt::endl;
@@ -1572,9 +1571,6 @@ int main(int argc, char* argv[])
 	//
 #if defined(Q_OS_WIN)
 	_CrtSetDbgFlag(0);
-#if !defined(NDEBUG)
-	AfxEnableMemoryLeakDump(false);
-#endif
 #endif
 
 	if (hasExpired())
@@ -1610,7 +1606,7 @@ int main(int argc, char* argv[])
 
 	LoadTranslations();
 
-	reportCpuType();
+	AvxSimdCheck::reportCpuType();
 
 	ZTRACE_RUNTIME("Creating Main Window");
 	DeepSkyStackerLive mainWindow;

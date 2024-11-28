@@ -56,11 +56,6 @@ namespace DSS
 	class ToolBar;
 }
 
-namespace Ui
-{
-	class StackingDlg;
-}
-
 namespace std::filesystem
 {
 	class path;
@@ -74,6 +69,11 @@ class Workspace;
 
 namespace DSS
 {
+	namespace Ui
+	{
+		class StackingDlg;
+	}
+
 	class IconSizeDelegate : public QStyledItemDelegate
 	{
 		Q_OBJECT
@@ -140,6 +140,7 @@ namespace DSS
 
 	signals:
 		void statusMessage(const QString& text);
+		void setDockTitle(const QString& text);
 
 	public slots:
 		void setSelectionRect(const QRectF& rect);
@@ -228,7 +229,7 @@ namespace DSS
 
 		inline bool customRectangleIsValid() const
 		{
-			return !selectRect.isEmpty();
+			return !selectionRect.isEmpty();
 		}
 
 		static int getNumberOfTableViewColumns(const QTableView* const tableView);
@@ -266,11 +267,11 @@ namespace DSS
 
 		bool fileAlreadyLoaded(const fs::path& file);
 
-		EditStars* editStarsPtr;
-		SelectRect* selectRectPtr;
+		EditStars* editStars;
+		SelectRect* selectRect;
 		ToolBar* pToolBar;
 
-		DSSRect	selectRect;
+		DSSRect	selectionRect;
 
 		//QFileDialog			fileDialog;
 
@@ -296,8 +297,6 @@ namespace DSS
 		QAction* properties;
 		QAction* copy;
 		QAction* erase;
-
-		QLabel* dockTitle;
 
 		void checkAskRegister();
 

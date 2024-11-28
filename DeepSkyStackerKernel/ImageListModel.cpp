@@ -108,7 +108,7 @@ namespace DSS
                     }
                 };
                 break;
-            case Column::MeanQuality:
+            case Column::Quality:
                 if (file.m_PictureType != PICTURETYPE_LIGHTFRAME)
                 {
                     if (Qt::EditRole == role)
@@ -120,8 +120,8 @@ namespace DSS
                     if (file.m_bRegistered)
                     {
                         if (Qt::EditRole == role)
-                            return file.meanQuality;
-                        return QString{ "%1" }.arg(file.meanQuality, 0, 'f', 2);
+                            return file.quality;
+                        return QString{ "%1" }.arg(file.quality, 0, 'f', 2);
                     }
                     else
                     {
@@ -392,8 +392,8 @@ namespace DSS
                 return tr("Filter", "IDS_COLUMN_FILTER");
             case Column::Score:
                 return tr("Score", "IDS_COLUMN_SCORE");
-            case Column::MeanQuality:
-                return tr("MeanQuality", "IDS_COLUMN_MEANQUALITY");
+            case Column::Quality:
+                return tr("Quality", "IDS_COLUMN_MEANQUALITY");
             case Column::dX:
                 return tr("dX", "IDS_COLUMN_DX");
             case Column::dY:
@@ -489,8 +489,8 @@ namespace DSS
                 case Column::Score:
                     file.m_fOverallQuality = value.toDouble();
                     break;
-                case Column::MeanQuality:
-                    file.meanQuality = value.toDouble();
+                case Column::Quality:
+                    file.quality = value.toDouble();
                 case Column::dX:
                     file.m_dX = value.toDouble();
                     break;

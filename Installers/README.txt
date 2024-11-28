@@ -1,18 +1,39 @@
-Welcome to DeepSkyStacker 5.1.7
-===============================
+Welcome to DeepSkyStacker 5.1.8
+======================================
 
 Only 64 bit versions of Windows 10 and later are supported in this release.
 
-This is primarily a bug fix release, but there are a few enhancements as well.  It supercedes 5.1.6 which is withdrawn.
+This release is all about finishing the conversion of the code to use Qt instead of MFC.  That said, there are a few bug fixes,
+and a number of enhancements as well.   This isn't a complete list as many changes were made to improve code quality and 
+performance.
 
 Known problems:
 
 1. When the image exposure is less than 1ms and double-click to edit is used, if the user clicks away from the editor, then the exposure is set to zero.
    This requires too much work to fix in this release, as we will need to implement our own edit control.
 
+2. If you install DeepSkyStacker and it won’t startup, then it is likely that you have hit a problem caused by another application’s install
+   procedure overwriting msvcp140.dll with a back-level version.
+
+   If this is the case, then you will find that the log file in “My Documents\DeepSkyStacker” contains lines like:
+
+	00000030 2024/06/19 21:30:57.010 028564 00003520     >00007FFC81353020 (MSVCP140): (filename not available): Thrd_yield
+	00000030 2024/06/19 21:30:57.010 028564 00003520     >
+	00000031 2024/06/19 21:30:57.011 028564 00003520     >C:\Users\amonra\Documents\GitHub\DSS\DeepSkyStackerKernel\Workspace.cpp (456): Workspace::Workspace
+
+   The solution to this problem is to download the latest version of the Visual C++ re-distributable (vc_redist) for x64 from:
+
+	https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+   and running it, selecting the “Repair” option.
+
+   For more details of the issue please see:
+
+	https://stackoverflow.com/questions/78598141/first-stdmutexlock-crashes-in-application-built-with-latest-visual-studio
+
 Changes since the last release:
 
-1. When saving the project to a file-list, a default file name is suggested which is equal to the name of the current directory.
+1. Bug fix: When saving the project to a file-list, a default file name is suggested which is equal to the name of the current directory.
 
 2. Bug fix: The circles around the stars and the comet stayed even after clearing the file list.
 
@@ -26,17 +47,60 @@ Changes since the last release:
 
 7. Bug fix: Custom rectangle produces a partly empty stacking result when the SIMD acceleration is turned ON.
 
+8. Implement an automatic threshold for star detection (which is the default) and a much better image quality indication (Quality) which is a
+   Gaussian mean of star quality as compared to the Score which was the sum of all star qualities (calculated differently) and was dependent
+   on the number of stars as well as their quality.
+
+   The automatic threshold will be in the range 0.05% and 100%, and the target number of stars is ~50.
+
+   The new Quality metric is primarily based on the average circularity ("roundness") of the stars in the image. It is
+   largely independent of the number of detected stars.
+
+   The background level, to which the star detection threshold refers, is now calculated locally per 250x250 pixel square rather than
+   globally over the entire image.  This compensates for any background illumination gradients.
+
+   All light frame sorting criteria have been switched to use the new Quality value instead of the Score (e.g. for stacking the best x% light frames).
+
+   The first light frame to register will be either the first in the frame list, or the reference frame (if one was chosen). If auto-threshold
+   is used, the detected threshold of this light frame will serve as the basis for the threshold search of the following frames.
+
+   We suggest that you ensure that the first registered light frame is not significantly darker then the other frames (brighter is no problem),
+   otherwise the number of detected stars might be very high.
+
+9. Bug fix: Computation of the final star centres has been corrected. The old version was slightly biased towards left/up of the real centre.
+
+10. Finish conversion of code to Qt - there should be no MFC stuff left.
+
+11. Upgrade LibRaw to 0.23.1
+
+12. Upgrade LibTIFF to 4.7.0
+
+13. Bug fix: Fix broken handling of Up-Arrow, Right-Arrow, Down-Arrow, Left-Arrow; Page-Up and Page-Down keys for the sliders of the gradient control.
+
+14. Bug fix: Attempting to load a FITS file from the image list failed with a message: "Failed to load ...".   This was caused by a change in the Mime
+    types database shipped with the latest version of Qt.  It used to assign a type of "image/fits" to FITS files, but now assigns "application/fits".
+
+15. Remove the code to check for LibRaw support of a camera.  The data in the camera list wasn't really good for that check and resulted in false
+    negatives and false positives however hard we tried to "tweak" the code to check against that list.
+
+    This shouldn't cause any problems as a "not supported" decision simply resulted in a single warning message.
+
+16. Bug fix: Add a small windows resource file so the application icon gets set.
+
+17. Write all output text streams to a QByteArray buffer, and then use a single QFile::write() to write them.
+
+18. Changes to allow the DeepSkyStacker main window to display correctly on a monitor with an effective size of 1280*720 (1920*1080 at 150% scaling).
+    This was achieved by moving the controls for the processing panel into the lower dockable window and allowing the displayed image to have a
+    minimum height of 100 pixels.   If you need to show the image larger, undock the lower dock window.
+
+19. Add translations for Simplified Chinese thanks to 张博 (Zhang Bo).
+
 Welcome to DeepSkyStacker 5.1.6
 ===============================
 
 Only 64 bit versions of Windows 10 and later are supported in this release.
 
-This is primarily a bug fix release, but there are a few enhancements as well.  It supercedes 5.1.6 which is withdrawn.
-
-Known problems:
-
-1. When the image exposure is less than 1ms and double-click to edit is used, if the user clicks away from the editor, then the exposure is set to zero.
-   This requires too much work to fix in this release, as we will need to implement our own edit control.
+This is primarily a bug fix release, but there are a few enhancements as well.
 
 Changes since the last release:
 
@@ -286,7 +350,8 @@ Here are the main changes that were made for DeepSkyStacker 5.1.0:
 
 1. The bulk of the code for the "Stacking" panel has been converted to Qt.  This includes a completely reworked image display.
 
-2. The image list can now be undocked from the bottom of the Stacking panel so that it operates as a separate window.  The "Explorer" bar (left panel) can also be undocked.
+2. The image list can now be undocked from the bottom of the Stacking panel so that it operates as a separate window.
+   The "Explorer" bar (left panel) can also be undocked.
 
 3. It is now possible to rename all groups with the exception of the initial group (Main Group).
 
@@ -294,7 +359,10 @@ Here are the main changes that were made for DeepSkyStacker 5.1.0:
 
 5. A large number of internal changes have been made with the intent of facilitating future enhancements and/or to improve processing.
 
-6. SIMD (Single Instruction Multiple Data - also known as Advanced Vector Extensions or AVX) support for decoding raw images and for registration and stacking of RGGB images.  It *can* deliver dramatic reductions in processing times, but it depends on your processor and clock speed, so don't assume it will be faster.   As an example, Martin Toeltsch (who wrote the code) reports times to process 10 Nikon NEF files (on his computer):
+6. SIMD (Single Instruction Multiple Data - also known as Advanced Vector Extensions or AVX) support for decoding raw images and for
+   registration and stacking of RGGB images.  It *can* deliver dramatic reductions in processing times, but it depends on your
+   processor and clock speed, so don't assume it will be faster.
+   As an example, Martin Toeltsch (who wrote the code) reports times to process 10 Nikon NEF files (on his computer):
 
 	Without SIMD  52s
 	Using SIMD    8s
@@ -315,7 +383,9 @@ Here are the main changes that were made for DeepSkyStacker 5.1.0:
 
 10. The "Processing" panel is still running MFC code but has minor changes to allow it to work as a child of a Qt window.
 
-11. The location for storing DeepSkyStacker settings files has changed from %ProgramData%\DeepSkyStacker (typically C:\ProgramData\DeepSkyStacker) to %AppData%\DeepSkyStacker\DeepSkyStacker5 (typically C:\Users\<username>\AppData\Roaming\DeepSkyStacker\DeepSkyStacker5).  You may wish to copy any old settings files to the new location.
+11. The location for storing DeepSkyStacker settings files has changed from %ProgramData%\DeepSkyStacker (typically C:\ProgramData\DeepSkyStacker)
+   to %AppData%\DeepSkyStacker\DeepSkyStacker5 (typically C:\Users\<username>\AppData\Roaming\DeepSkyStacker\DeepSkyStacker5).
+   You may wish to copy any old settings files to the new location.
 
 12. A file association is now created during installation so that .dssfilelist files will be opened by DeepSkyStacker.
 
@@ -323,7 +393,9 @@ Here are the main changes that were made for DeepSkyStacker 5.1.0:
 
 14. Change message for incompatible images to report the reason.
 
-24. Registering and stacking now overlap processing with reading the images.   For n images where time to load each image is L and time to process each image is P, the total time will now typically be n*L + P (when L > P) or L + n*P.   Typically, the time to load the images will predominate on faster systems or those that use real disk drives.
+24. Registering and stacking now overlap processing with reading the images.   For n images where time to load each image is L
+   and time to process each image is P, the total time will now typically be n*L + P (when L > P) or L + n*P.
+   Typically, the time to load the images will predominate on faster systems or those that use real disk drives.
 
 15. Remove manual setting of "Set Black Point to Zero", this is now determined automatically.
 
@@ -334,3 +406,6 @@ Here are the main changes that were made for DeepSkyStacker 5.1.0:
 18. Update Libraw to 0.21.1
 
 19. Bug fix - active tab jumped back to Main Group after drop of files when another group was active.
+
+20. When loading a file list that contains a file that's already loaded, report this using QErrorMessage instead of QMessageBox.
+   This will allow the message to be suppressed by the user.
