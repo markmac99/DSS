@@ -46,7 +46,7 @@ jobs:
       shell: powershell
       
     - name: Install Qt
-      uses: jurplel/install-qt-action@v4
+      uses: jurplel/install-qt-action@v4.2.0
       with:
         version: '6.8.2'
         host: 'windows'
