@@ -80,10 +80,10 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
+        dir "$env:vcpkg_root"
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
         $env:QtToolsPath="${{env.QT_ROOT_DIR}}\bin"
-        $env:path="$env:VCPKG_ROOT;$env:path"
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /p:AdditionalIncludePaths="$env:VCPKG_ROOT\x64-windows-static-md\x64-windows-static-md\include"
       shell: powershell
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
