@@ -29,6 +29,10 @@
 //
 DSS::TraceControl traceControl{ std::source_location::current().file_name() };
 
+std::unique_ptr<std::uint8_t[]> backPocket;
+constexpr size_t backPocketSize{ 1024 * 1024 };
+
+
 DeepSkyStackerCommandLine::DeepSkyStackerCommandLine(int& argc, char** argv) :
 	QCoreApplication(argc, argv),
 	m_consoleOut{ stdout }
