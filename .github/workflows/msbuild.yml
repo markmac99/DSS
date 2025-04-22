@@ -39,7 +39,7 @@ jobs:
 
     - name: Install Visual Leak Detector
       run: |
-        curl -o vld.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/vld.zip
+        curl -o vld.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/buildtest/BuildPkgs/vld.zip
         mkdir "c:\program files (x86)\Visual Leak Detector"
         expand-archive vld.zip -destinationpath "c:\program files (x86)\Visual Leak Detector"
         # dir "c:\program files (x86)\Visual Leak Detector"
@@ -68,7 +68,7 @@ jobs:
       
     - name: Install QT VS Plugin Support for MSBuild
       run: |
-        curl -o qtmsbuild.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/master/BuildPkgs/QtMsBuild.zip
+        curl -o qtmsbuild.zip https://raw.githubusercontent.com/markmac99/DSS/refs/heads/buildtest/BuildPkgs/QtMsBuild.zip
         expand-archive qtmsbuild.zip -destinationpath d:\buildpkgs\
       shell: powershell
 
