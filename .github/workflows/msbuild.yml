@@ -72,6 +72,9 @@ jobs:
         expand-archive qtmsbuild.zip -destinationpath d:\buildpkgs\
       shell: powershell
 
+    - name: setup and install vcpkg packages
+      uses: lukka/run-vcpkg@v11
+
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
