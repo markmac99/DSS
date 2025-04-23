@@ -20,7 +20,6 @@ env:
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
   VCPKG_DEFAULT_TRIPLET: x64-windows-release
-  VCPKG_ROOT: d:\vcpkg
 
 permissions:
   contents: read
@@ -79,6 +78,7 @@ jobs:
       id: vcpkg
       with:
         runVcpkgInstall: True
+        vcpkgDirectory: d:\vcpkg\
 
     - name: Build
       working-directory: ${{ env.GITHUB_WORKSPACE }}
@@ -88,10 +88,11 @@ jobs:
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
         $env:QtToolsPath="${{ env.QT_ROOT_DIR }}\bin"
         $env:VCPKG_INSTALLED_DIR="${{ github.workspace }}\vcpkg\installed"
-        dir "$env:vcpkg_root"
+        dir "d:\vcpkg"
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} 
       shell: powershell
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
         BOOST_1_80_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        VCPKG_INSTALLED_DIR: "d:\\vcpkg\\installed"
+        VCPKG_INSTALLED_DIR: "d:\\vcpkg\\vcpkg_installed"
+        # D:/a/DSS/DSS/969f6665-88a2-4c98-938e-ca9259871fec/vcpkg_installed
