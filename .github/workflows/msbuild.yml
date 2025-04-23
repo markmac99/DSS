@@ -19,6 +19,7 @@ env:
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
+  VCPKG_INSTALLED_DIR: "${{env.GITHUB_WORKSPACE}}\vcpkg_installed"
 
 permissions:
   contents: read
@@ -85,10 +86,10 @@ jobs:
       run: |
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
         $env:QtToolsPath="${{env.QT_ROOT_DIR}}\bin"
-        dir "$env:VCPKG_INSTALLED_DIR"
+        dir "${{env.VCPKG_INSTALLED_DIR}}"
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} 
       shell: powershell
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
         BOOST_1_80_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        VCPKG_INSTALLED_DIR: ${{steps.install-vcpkg.outputs.VCPKG_INSTALLED_DIR}}
+        #VCPKG_INSTALLED_DIR: ${{steps.install-vcpkg.outputs.VCPKG_INSTALLED_DIR}}
