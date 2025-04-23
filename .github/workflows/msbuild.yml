@@ -74,6 +74,8 @@ jobs:
 
     - name: setup and install vcpkg packages
       uses: lukka/run-vcpkg@v11
+      with:
+        runVcpkgInstall: True
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
