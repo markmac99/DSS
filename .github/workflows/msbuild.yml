@@ -19,7 +19,6 @@ env:
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
-  VCPKG_INSTALLED_DIR: "${{env:GITHUB_WORKSPACE}}\vcpkg_installed"
 
 permissions:
   contents: read
@@ -78,6 +77,8 @@ jobs:
       id: install-vcpkg
       with:
         runVcpkgInstall: True
+      env:
+        VCPKG_INSTALLED_DIR: ${{env.GITHUB_WORKSPACE}}\vcpkg_installed
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -92,4 +93,4 @@ jobs:
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
         BOOST_1_80_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        #VCPKG_INSTALLED_DIR: ${{steps.install-vcpkg.outputs.VCPKG_INSTALLED_DIR}}
+        VCPKG_INSTALLED_DIR: ${{env.GITHUB_WORKSPACE}}\vcpkg_installed
