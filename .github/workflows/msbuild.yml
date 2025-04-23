@@ -79,7 +79,9 @@ jobs:
       with:
         runVcpkgInstall: True
         #vcpkgDirectory: d:\vcpkg\
-        runVcpkgFormatString: '[`install`, `--recurse`, `--clean-after-build`, `--x-install-root`, `d:\\vcpkg_installed`, `--triplet`, `$[env.VCPKG_DEFAULT_TRIPLET]`]'
+        #runVcpkgFormatString: '[`install`, `--recurse`, `--clean-after-build`, `--x-install-root`, `d:\\vcpkg_installed`, `--triplet`, `$[env.VCPKG_DEFAULT_TRIPLET]`]'
+      env:
+        VCPKG_INSTALLED_DIR: "${{ github.workspace }}\\vcpkg\\installed"
 
     - name: Build
       working-directory: ${{ env.GITHUB_WORKSPACE }}
@@ -95,5 +97,4 @@ jobs:
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
         BOOST_1_80_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        VCPKG_INSTALLED_DIR: "d:\\vcpkg_installed"
         # D:/a/DSS/DSS/969f6665-88a2-4c98-938e-ca9259871fec/vcpkg_installed
