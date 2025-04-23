@@ -80,6 +80,7 @@ jobs:
         #runVcpkgInstall: True
         manifest-dir: ${{ github.workspace }}
         github-binarycache: true
+        token: ${{ github.token }}
       #env:
       #  VCPKG_INSTALLED_DIR: "${{ env.GITHUB_WORKSPACE }}\vcpkg_installed"
 
