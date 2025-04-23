@@ -81,6 +81,7 @@ jobs:
         manifest-dir: ${{ github.workspace }}
         github-binarycache: true
         token: ${{ github.token }}
+        triplet: x64-windows-release
       #env:
       #  VCPKG_INSTALLED_DIR: "${{ env.GITHUB_WORKSPACE }}\vcpkg_installed"
 
