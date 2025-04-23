@@ -76,7 +76,7 @@
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LibraryPath>..\libs\Win64\$(Configuration)Libs;$(VC_LibraryPath_x64);$(WindowsSdk_71A_LibraryPath_x64);$(LibraryPath)</LibraryPath>
-    <ExternalIncludePath>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(VC_IncludePath);$(WindowsSDK_IncludePath);d:\a\DSS\;</ExternalIncludePath>
+    <ExternalIncludePath>$(QTDIR)\include;$(QTDIR)\include\QtCore;$(VC_IncludePath);$(WindowsSDK_IncludePath);${vcpkg_root}\include;</ExternalIncludePath>
     <IncludePath />
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
