@@ -91,7 +91,7 @@ jobs:
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
         $env:QtToolsPath="${{ env.QT_ROOT_DIR }}\bin"
         $env:VCPKG_INSTALLED_DIR="${{ github.workspace }}\vcpkg\installed\${{ env.VCPKG_DEFAULT_TRIPLET }}"
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} -target:DeepSkyStacker /p:AdditionalLibraryDirectories="$env:VCPKG_INSTALLED_DIR}\lib"
+        msbuild -m -p:Configuration=${{env.BUILD_CONFIGURATION}} -target:DeepSkyStacker
       shell: powershell
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
