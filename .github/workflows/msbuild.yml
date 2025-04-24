@@ -78,15 +78,11 @@ jobs:
       id: vcpkg
       with:
         runVcpkgInstall: True
-        #vcpkgDirectory: d:\vcpkg\
-        #runVcpkgFormatString: '[`install`, `--recurse`, `--clean-after-build`, `--x-install-root`, `d:\\vcpkg_installed`, `--triplet`, `$[env.VCPKG_DEFAULT_TRIPLET]`]'
       env:
         VCPKG_INSTALLED_DIR: "${{ github.workspace }}\\vcpkg\\installed"
 
     - name: Build DSS Release Version
       working-directory: ${{ env.GITHUB_WORKSPACE }}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         $env:QtMsBuild="d:\buildpkgs\QtMsBuild"
         $env:QtToolsPath="${{ env.QT_ROOT_DIR }}\bin"
