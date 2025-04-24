@@ -142,7 +142,7 @@
     <ProjectReference />
     <Link>
       <AdditionalDependencies>user32.lib;psapi.lib;$(Qt_LIBS_);htmlhelp.lib;cfitsio.lib;tiff.lib;exiv2.lib;zlib.lib;raw_r.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(VCPKG_INSTALLED_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(VCPKG_INSTALLED_DIR)\lib;..\vcpkg_installed\x64-windows-static-md\x64-windows-static-md\x64-windows-static-md\release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
@@ -219,8 +219,8 @@ $(QtToolsPath)\windeployqt $(TargetPath)</Command>
       <AdditionalIncludeDirectories>$(VC_IncludePath);$(WindowsSDK_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>user32.lib;psapi.lib;$(Qt_LIBS_);htmlhelp.lib;cfitsio.lib;tiff.lib;exiv2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(VCPKG_INSTALLED_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;psapi.lib;$(Qt_LIBS_);htmlhelp.lib;cfitsio.lib;tiffd.lib;exiv2.lib;zlibd.lib;raw_rd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCPKG_INSTALLED_DIR)\lib;..\vcpkg_installed\x64-windows-static-md\x64-windows-static-md\x64-windows-static-md\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
