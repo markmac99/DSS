@@ -83,7 +83,7 @@ jobs:
       env:
         VCPKG_INSTALLED_DIR: "${{ github.workspace }}\\vcpkg\\installed"
 
-    - name: Build
+    - name: Build DSS Release Version
       working-directory: ${{ env.GITHUB_WORKSPACE }}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
@@ -96,4 +96,14 @@ jobs:
       env:
         DefaultQtVersion: "${{env.QT_ROOT_DIR}}"
         BOOST_1_80_0: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        # D:/a/DSS/DSS/969f6665-88a2-4c98-938e-ca9259871fec/vcpkg_installed
+        
+    - name: Upload Build
+      uses: actions/upload-artifact@v4
+      id: upload-dss
+      with:
+        name: dss_binary
+        path: ${{ github.workspace }}/x64/${{env.BUILD_CONFIGURATION}}/DeepSkyStacker.exe
+        overwrite: true
+  
+    - name: Output artifact ID
+      run:  echo 'Artifact URL is ${{ steps.upload-dss.outputs.artifact-url }}'        
